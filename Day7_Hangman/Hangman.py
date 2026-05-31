@@ -1,5 +1,11 @@
-#Todo - 1 : Use a while loop to let the user guess again.
-#Todo - 2 : Change the for loop so that you keep the previous correct guess and the new letter and add all of that to our variable called display.
+# Hangman game rules:
+# 1. A random word is chosen from the list.
+# 2. The word is hidden as underscores, one for each letter.
+# 3. The player guesses one letter at a time.
+# 4. Correct letters are revealed in all matching positions.
+# 5. Wrong guesses add a life and draw the next hangman stage.
+# 6. The player loses after 7 wrong guesses.
+# 7. The player wins when the whole word is revealed.
 
 import random as rd
 
@@ -60,7 +66,7 @@ HANGMANPICS = [r'''
 
 word_list = ["house","preety","englightened"]
 word = rd.choice(word_list).lower()
-print(word)
+#print(word)
 hidden_word = "_"*len(word)
 print(hidden_word)
 won = False
