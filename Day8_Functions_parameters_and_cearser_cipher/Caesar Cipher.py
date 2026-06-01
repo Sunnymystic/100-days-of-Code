@@ -1,7 +1,9 @@
 #Encryption
-#Shift 
+#Shift
 # Uppercase letters 65 to 90.
 # Lowercase letters 97 - 122
+from caesar_cipher_art import logo
+print(logo)
 
 def encrypt(input_message,shift):
     encrpyted_list = []
