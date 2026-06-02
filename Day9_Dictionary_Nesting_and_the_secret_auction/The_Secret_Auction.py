@@ -1,5 +1,13 @@
 import os
 from secret_auction_art import logo
+
+def find_highest_bidder(auction): 
+    max_auction = 0     
+    for name in auction:
+        if auction[name] > max_auction:
+            max_auction = auction[name]
+            winner_name = name
+    print(f"The winner is {winner_name} with a bid of ${max_auction}!")
 print(logo)
 auction = {}
 max_auction = 0
@@ -12,9 +20,5 @@ while(repeat != "no"):
     if repeat == "yes":
         os.system('cls' if os.name == 'nt' else 'clear')
 if repeat == "no":
-    os.system('cls' if os.name == 'nt' else 'clear')       
-for name in auction:
-    if auction[name] > max_auction:
-        max_auction = auction[name]
-        winner_name = name
-print(f"The winner is {winner_name} with a bid of ${max_auction}!")
+    os.system('cls' if os.name == 'nt' else 'clear') 
+    find_highest_bidder(auction)
