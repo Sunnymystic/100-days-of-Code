@@ -2,7 +2,8 @@ import os
 from secret_auction_art import logo
 
 def find_highest_bidder(auction): 
-    max_auction = 0     
+    max_auction = 0    
+#   winner = max(auction,key=auction.get) 
     for name in auction:
         if auction[name] > max_auction:
             max_auction = auction[name]
