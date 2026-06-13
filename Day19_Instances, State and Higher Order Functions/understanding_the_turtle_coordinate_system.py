@@ -19,33 +19,34 @@ def winner_turtle():
         if turtle.xcor() >= 230:
             return turtle.name.lower()
 
-    
-red = Turtle()
-blue = Turtle()
-orange = Turtle()
-purple = Turtle()
-magenta = Turtle()
+
 turtles = []
+race_is_one = False
+colors = ["red","blue","orange","purple","magenta"]
+
 screen = Screen()
 screen.setup(width=500,height=400)  # Allows to set the width and height of the screen
 user_bet = screen.textinput(title="Make your bet",prompt="Which turtle will win the race? Enter a color: ").lower()
 print(user_bet)
 
-# speed = [range(1,20)]
-# print(speed)
-
-turtles.append(turtle_setup(red,"turtle","red",(-240,50)))
-turtles.append(turtle_setup(blue,"turtle","blue",(-240,100)))
-turtles.append(turtle_setup(orange,"turtle","orange",(-240,0)))
-turtles.append(turtle_setup(purple,"turtle","purple",(-240,-50)))
-turtles.append(turtle_setup(magenta,"turtle","magenta",(-240,-100)))
-while red.xcor() < 230 and blue.xcor() < 230 and orange.xcor() < 230 and purple.xcor() < 230 and magenta.xcor() < 230:
+if user_bet : 
+    race_is_on = True
     
-    red.forward(rd.randint(1,10))
-    blue.forward(rd.randint(1,10))
-    orange.forward(rd.randint(1,10))
-    purple.forward(rd.randint(1,10))
-    magenta.forward(rd.randint(1,10))
+for i in range(len(colors)):
+    new_turtle = Turtle()
+    if i % 2 == 0:
+        turtles.append(turtle_setup(new_turtle,"turtle",colors[i],(-240,i//2*50)))
+    else:
+        turtles.append(turtle_setup(new_turtle,"turtle",colors[i],(-240,i//-2*50)))
+    
+while race_is_on:
+    for turtle in turtles:
+        if turtle.xcor() < 230:
+            turtle.penup()
+            turtle.forward(rd.randint(1,10))
+            turtle.pendown()
+        else:
+            race_is_on = False
 screen.bye()
 winner = winner_turtle()
 if user_bet == winner:
