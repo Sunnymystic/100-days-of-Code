@@ -10,6 +10,7 @@
 #TODO: Vertical - left and right arrows; horizontal - up for left and down for right arrow
 
 from turtle import Screen,Turtle
+from snake import Snake
 import random as rd
 import time
 
@@ -28,7 +29,7 @@ def create_a_pen():
     pen.penup()
     pen.goto(0, 100)
     return pen
-    
+  
 def display_score(score,pen):
     pen.clear()
     pen.color("white")
@@ -45,14 +46,14 @@ def display_game_over_and_final_score():
     pen.write(f"Game Over ! Your Final Score: {score}", align="center", font=("Arial", 18, "bold"))
     
 def has_eaten_food():
-    head = segments[0]
+    head = snake.segments[0]
     if head.distance(food) < 15:
         return True
     else:
         return False
 
 def has_hit_wall():
-    head = segments[0]
+    head = snake.segments[0]
     if(head.xcor() > 280 or head.xcor() < -280 or head.ycor() > 280 or head.ycor() < -280):
         return True
     else:
@@ -60,29 +61,11 @@ def has_hit_wall():
 
 
 def has_hit_tail():
-    head = segments[0]
-    for segment in segments[1:-1]:
+    head = snake.segments[0]
+    for segment in snake.segments[1:-1]:
         if head.distance(segment) < 10:
             return True
     return False
-
-        
-def create_new_segment(position):
-    segment = Turtle()
-    segment.penup()
-    segment.goto(position)
-    segment.shape("square")
-    segment.color("white")
-    segment.pencolor("black")
-    segment.speed("fastest")
-    segments.append(segment)
-    
-    
-
-    
-def increase_snake_size():
-    last_segment = segments[-1]
-    create_new_segment(last_segment.position())
 
 # def increase_snake_spped():
     
@@ -91,25 +74,25 @@ direction = "RIGHT"
 def turn_left():
     global direction
     if direction != "RIGHT":
-        segments[0].setheading(180)
+        snake.segments[0].setheading(180)
         direction = "LEFT"
 
 def turn_right():
     global direction
     if direction != "LEFT":
-        segments[0].setheading(0)
+        snake.segments[0].setheading(0)
         direction = "RIGHT"
 
 def turn_up():
     global direction
     if direction != "DOWN":
-        segments[0].setheading(90)
+        snake.segments[0].setheading(90)
         direction = "UP"
 
 def turn_down():
     global direction
     if direction != "UP":
-        segments[0].setheading(270)
+        snake.segments[0].setheading(270)
         direction = "DOWN"
 
 screen = Screen()
@@ -120,12 +103,7 @@ screen.tracer(0)
 screen.addshape("C:/Users/sudogra/Desktop/projects/Learn Python/Day20_Build_The_Snake_Game_Part1/apple.gif")
 
 pen = create_a_pen()
-
-starting_positions = [(0,0),(-20,0),(-40,0)]
-segments = []
-
-for position in starting_positions:
-    create_new_segment(position)
+snake = Snake()
 
 food = create_food()
 
@@ -144,20 +122,20 @@ while game_is_on:
     pen = display_score(score,pen)
     time.sleep(0.1)
     ### For straight movement
-    for seg_num in range(len(segments)-1,0,-1):
-        new_x = segments[seg_num - 1].xcor()
-        new_y = segments[seg_num -1].ycor()
-        segments[seg_num].goto(new_x,new_y)
-    segments[0].forward(10)
+    for seg_num in range(len(snake.segments)-1,0,-1):
+        new_x = snake.segments[seg_num - 1].xcor()
+        new_y = snake.segments[seg_num -1].ycor()
+        snake.segments[seg_num].goto(new_x,new_y)
+    snake.segments[0].forward(10)
     ### To detect collision with the food
     if has_eaten_food():
         food.clear()
         food.hideturtle()
         score += 1
         food = create_food() 
-        increase_snake_size()
+        snake.increase_snake_size()
         # increase_snake_speed()   
-    if (has_hit_wall() or has_hit_tail()) and len(segments) > 3:
+    if (has_hit_wall() or has_hit_tail()) and len(snake.segments) > 3:
         game_is_on = False        
         screen.onkey(None, "Left")
         screen.onkey(None, "Right")
