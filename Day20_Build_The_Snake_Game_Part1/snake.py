@@ -1,5 +1,8 @@
 from turtle import Screen,Turtle
+from food import Food
 import random as rd
+
+STARTING_POSITION = [(0,0),(-20,0),(-40,0)]
 
 class Snake:
     screen = None
@@ -10,17 +13,17 @@ class Snake:
     def set_screen(cls,screen):
         cls.screen = screen
 
-    def __init__(self):
-        self.starting_positions = [(0,0),(-20,0),(-40,0)]
+    def __init__(self,food,scoreboard):
         self.segments = []
-        self.score = 0
+        self.create_snake()
+        self.head = self.segments[0]
         self.is_alive = True
-        self.food = self.create_food()
-        self.pen = self.create_a_pen()
-    
-        for position in self.starting_positions:
+        self.scoreboard = scoreboard
+        self.food = food
+
+    def create_snake(self):    
+        for position in STARTING_POSITION:
             self.create_new_segment(position)
-            
         self.bind_keys()
     
     def bind_keys(self):
@@ -40,58 +43,26 @@ class Snake:
         segment.speed(self.current_speed)
         self.segments.append(segment)
     
-    def increase_snake_size(self):
-        last_segment = self.segments[-1]
-        self.create_new_segment((last_segment.xcor(), last_segment.ycor()))
-
-    def create_food(self):
-        food = Turtle()
-        food.shape("C:/Users/sudogra/Desktop/projects/Learn Python/Day20_Build_The_Snake_Game_Part1/apple.gif")
-        food.shapesize(stretch_len=1,stretch_wid=1)
-        x = rd.randint(-280,280)
-        y = rd.randint(-280,280)
-        food.goto(x,y)
-        return food
-
-    def create_a_pen(self):
-        pen = Turtle()
-        pen.hideturtle()
-        pen.penup()
-        pen.goto(0, 100)
-        return pen
-    
-    def display_score(self):
-        self.pen.clear()
-        self.pen.color("white")
-        self.pen.write(f"Score: {self.score}", align="center", font=("Arial", 18, "bold"))
-        return self.pen
-
-    def hide_score(self):
-        self.pen.clear()
-        self.pen.hideturtle()
-        
-    def display_game_over_and_final_score(self):
-        self.pen.color("white")
-        self.pen.write(f"Game Over ! Your Final Score: {self.score}", align="center", font=("Arial", 18, "bold"))
-        
     def has_eaten_food(self):
-        head = self.segments[0]
-        if head.distance(self.food) < 15:
+        if self.head.distance(self.food) < 15:
             return True
         else:
             return False
-
+    
+    def increase_snake_size(self):
+        last_segment = self.segments[-1]
+        self.create_new_segment((last_segment.xcor(), last_segment.ycor()))
+        
     def has_hit_wall(self):
-        head = self.segments[0]
-        if(head.xcor() > 280 or head.xcor() < -280 or head.ycor() > 280 or head.ycor() < -280):
+        if(self.head.xcor() > 280 or self.head.xcor() < -280 or self.head.ycor() > 280 or self.head.ycor() < -280):
             return True
         else:
             return False    
 
     def has_hit_tail(self):
-        head = self.segments[0]
+        
         for segment in self.segments[2:]:
-            if head.distance(segment) < 10:
+            if self.head.distance(segment) < 10:
                 return True
         return False
 
@@ -120,7 +91,7 @@ class Snake:
 
     def move(self):
         ### For straight movement
-        self.display_score()
+        self.scoreboard.display_score(self.is_alive)
         for seg_num in range(len(self.segments)-1,0,-1):
             new_x = self.segments[seg_num - 1].xcor()
             new_y = self.segments[seg_num -1].ycor()
@@ -129,20 +100,20 @@ class Snake:
         ### To detect collision with the food
         if self.has_eaten_food():
             self.food.clear()
-            self.food.hideturtle()
-            self.score += 1 
-            print(self.score)
+            self.food.hide_food()
+            self.scoreboard.score += 1 
+            print(self.scoreboard.score)
             self.increase_snake_size()
-            self.food = self.create_food()
             if self.current_speed < 10:
                 self.increase_snake_speed()
-                print(self.current_speed)  
-        if (self.has_hit_wall() or self.has_hit_tail()) and len(self.segments) > 3:
+                print(self.current_speed)
+            self.food = Food()  
+        if (self.has_hit_wall() or (self.has_hit_tail()) and len(self.segments) > 3):
             self.is_alive = False
             self.screen.onkey(None, "Left")
             self.screen.onkey(None, "Right")
             self.screen.onkey(None, "Up")
             self.screen.onkey(None, "Down")
-            self.hide_score()
-            self.display_game_over_and_final_score()
+            self.food.hide_food()
+            self.scoreboard.display_score(self.is_alive)
             return
