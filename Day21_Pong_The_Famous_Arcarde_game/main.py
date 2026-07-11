@@ -1,13 +1,7 @@
 from turtle import Turtle, Screen
 from paddle import Paddle
 from ball import Ball
-
-screen = Screen()
-
-screen.setup(width=800,height=600)
-screen.bgcolor("black")
-screen.title("Pong")
-screen.tracer(0)
+from scoreboard import Scoreboard
 
 def divide_the_screen():
     divider = Turtle()
@@ -24,33 +18,38 @@ def divide_the_screen():
         divider.penup()
         divider.forward(20)
 
+screen = Screen()
 
-Paddle.set_screen(screen)
-paddle = Paddle()
-ball = Ball(paddle)
-paddle.ball = ball
+screen.setup(width=800,height=600)
+screen.bgcolor("black")
+screen.title("Pong")
+screen.tracer(0)
+
+r_paddle = Paddle((350,0))
+l_paddle = Paddle((-350,0))
+scoreboard = Scoreboard()
+ball = Ball(l_paddle,r_paddle,scoreboard)
+
+# ball.launch()
 
 divide_the_screen()
-ball.move()
-screen.update()
-
-
-# ball = Ball()
-# scoreboard = Scoreboard()
-
-
-def game_loop():
-# if not paddle.is_game_on:
-#     return
-
-    paddle.bind_keys()
-    ball.move_straight()
-
-    # if paddle.is_game_on:
-    screen.update()
-    screen.ontimer(game_loop, 20)
 
 screen.listen()
-game_loop()
-screen.mainloop()
-# screen.exitonclick()
+screen.onkeypress(r_paddle.go_up,"Up")
+screen.onkeyrelease(r_paddle.stop_go_up,"Up")
+screen.onkeypress(r_paddle.go_down,"Down")
+screen.onkeyrelease(r_paddle.stop_go_down,"Down")
+screen.onkeypress(l_paddle.go_up,"w")
+screen.onkeyrelease(l_paddle.stop_go_up,"w")
+screen.onkeypress(l_paddle.go_down,"s")
+screen.onkeyrelease(l_paddle.stop_go_down,"s")
+
+game_is_on = True
+while game_is_on:
+    # paddle.bind_keys()
+    # ball.move_straight()
+    screen.update()
+    ball.move()
+    
+
+screen.exitonclick()
