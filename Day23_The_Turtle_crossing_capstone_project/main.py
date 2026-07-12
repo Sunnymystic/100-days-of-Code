@@ -15,24 +15,28 @@ cars = []
 
 
 carmanager = CarManager()
-player = Player(carmanager)
+scoreboard = Scoreboard()
+player = Player(carmanager,scoreboard)
+
 screen.listen()
 screen.onkeypress(player.go_up,"q")
 screen.onkeyrelease(player.stop_go_up,"q")
 
-game_is_on = True
+is_game_on = True
 counter = 0
-while game_is_on:
-    time.sleep(0.1 * (0.9 ** (carmanager.speed() - 1)))
+while is_game_on:
+    time.sleep(1/carmanager.speed)
+    print(1/carmanager.speed)
     screen.update()
+    scoreboard.display_message(is_game_on)
     if counter == 6 : 
         cars = carmanager.generate_the_cars()
     for car in cars:
         carmanager.move(car)
         if player.hit_by_car(car):
-            game_is_on = False
+            is_game_on = False
             message = Turtle()
-            message.write("Game Over!", align= ALIGNMENT, font=FONT)
+            scoreboard.display_message(is_game_on)
             break
     counter += 1
     if counter == 7:

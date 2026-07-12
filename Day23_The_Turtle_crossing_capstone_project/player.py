@@ -3,9 +3,10 @@ MOVE_DISTANCE = 10
 FINISH_LINE_Y = 280
 
 from turtle import Turtle
+from scoreboard import Scoreboard
 
 class Player(Turtle):
-    def __init__(self,car_manager):
+    def __init__(self,car_manager,scoreboard):
         super().__init__()
         self.shape("turtle")
         self.color("black")
@@ -15,13 +16,16 @@ class Player(Turtle):
         self.setheading(90)
         self.move_up = False
         self.car_manager = car_manager
+        self.scoreboard = scoreboard
     
     def move(self):
         if self.move_up and self.ycor() < FINISH_LINE_Y:
             self.sety(self.ycor() + 10)
         else:
             self.goto(0,-FINISH_LINE_Y)
+            self.scoreboard.level += 1
             self.car_manager.increment_cars_speed()
+            
             
     
     def go_up(self):

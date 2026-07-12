@@ -26,7 +26,7 @@ class CarManager():
         return self.cars
     
     def move(self,car):
-        car.setx(car.xcor() - MOVE_INCREMENT)
+        car.setx(car.xcor() - self.speed)
         
     def remove_offscreen_cars(self):
         for car in self.cars:
@@ -34,9 +34,8 @@ class CarManager():
                 self.cars.remove(car)
     
     def increment_cars_speed(self):
-        for car in self.cars:
-            car.speed(car.speed() + MOVE_INCREMENT)
-        self.speed = car.speed()
+        self.speed += MOVE_INCREMENT
+        print(self.speed)
             
             
     
