@@ -72,13 +72,29 @@ def save():  # json.dump() : Write, json.load() : Read, json.update() : Update
             finally:
                 website_input.delete(0, END)
                 password_input.delete(0, END)
-# #----------------------------- RETRIEVE PASSWORD----------------------- #
-# def fetch_entry():
-#     with open(SAVE_FILE,"r") as f:
-#         lines = f.readlines() 
-#     for line in lines:
-#         if "Amazon" in line:
-                           
+#----------------------------- Search----------------------- #
+def find_password():
+    website = website_input.get()
+    website = website.lower()
+    try:
+        with open(SAVE_FILE,"r") as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        messagebox.showinfo("No file found","No Data File Found")
+    else:
+        keys = list(data.keys())
+        keys = [key.lower() for key in keys]
+        print(keys)
+        print(website)
+        if website in keys:
+            searched_email = data[website]["email"]
+            searched_password = data[website]["password"]
+            messagebox.showinfo(f"{website}",f"Email/Username: {searched_email}\n Password: {searched_password}")  
+        else:
+            messagebox.showinfo("No data found","No Details for the website exists")
+    finally:
+        website_input.delete(0, END)
+                
 # ---------------------------- UI SETUP ------------------------------- #
 
 window = Tk()
@@ -106,8 +122,8 @@ password_label = Label(text="Password:",font=FONT,bg="white",borderwidth=0,highl
 password_label.grid(row=3,column=0)
 
 #---------------Entry blocks----------------------------
-website_input = Entry(width=35)
-website_input.grid(column=1,row=1,columnspan=2,sticky="ew")
+website_input = Entry(width=21)
+website_input.grid(column=1,row=1,sticky="ew")
 website_input.focus()
 
 email_username_input = Entry(width=35)
@@ -117,14 +133,14 @@ email_username_input.insert(0,"sunnydogra13@gmail.com")
 password_input = Entry(width=21)
 password_input.grid(column=1,row=3,sticky="ew")
 #------------------------Buttons-------------------------
-generate_password_button = Button(text="Generate Password",width=21,command=generate_password)
+generate_password_button = Button(text="Generate Password",width=14,command=generate_password)
 generate_password_button.grid(row=3,column=2) 
 
-add_button = Button(text="Add Button",width=56,command=save)
-add_button.grid(row=4,column=1,columnspan=2) 
+add_button = Button(text="Add Button",width=35,command=save)
+add_button.grid(row=4,column=1,columnspan=2,sticky="ew") 
 
-# search_button = Button(text="Search",width=21,command=fetch_entry)
-# add_button.grid(row=4,column=1,columnspan=2) 
+search_button = Button(text="Search",width=14,command=find_password)
+search_button.grid(row=1,column=2) 
 
 
 window.mainloop()   
