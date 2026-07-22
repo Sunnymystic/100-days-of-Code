@@ -3,6 +3,7 @@ from tkinter import messagebox
 from pathlib import Path
 import pyperclip
 import random
+import json
 
 #----------------------------- CONSTANTS -------------------------------#
 WHITE = "#ffffff"
@@ -10,7 +11,7 @@ BLACK = "#000000"
 FONT = ("Arial", 8)
 PROJECT_DIR = Path(__file__).resolve().parent
 LOGO_PATH = PROJECT_DIR / "logo.png"
-SAVE_FILE = PROJECT_DIR.parent / "save.csv"
+SAVE_FILE = PROJECT_DIR.parent / "save.json"
 
 # ---------------------------- PASSWORD GENERATOR ------------------------------- #
 #Password Generator Project
@@ -37,21 +38,47 @@ def generate_password():
     pyperclip.copy(password)
     print(f"Your password is: {password}")
 # ---------------------------- SAVE PASSWORD ------------------------------- #
-def save():
+def save():  # json.dump() : Write, json.load() : Read, json.update() : Update
     website = website_input.get()
     email = email_username_input.get()
     password = password_input.get()
+    new_data = {
+        website : {
+            "email":email,
+            "password":password,
+        }
+    }
 
     if len(password) == 0 or len(website) == 0:
         messagebox.showinfo(title="Oops",message="Please don't leave any fields empty!" )
     else:    
         is_ok = messagebox.askokcancel(title=website,message=f"These are the details your entered: \nEmail: {email}\nPassword: {password}\n Is it ok to save ?")
         if is_ok:
-            with open(SAVE_FILE, "a") as f:
-                print(f"({website};{email};{password})")
-                f.write(f"{website};{email};{password}\n")
+            try:
+                with open(SAVE_FILE, "r") as f:
+                #Reading old data
+                    data = json.load(f)
+                    #Updating old data with new data
+            except FileNotFoundError:
+                with open(SAVE_FILE,"w")as f:
+                #Saving updated data
+                    json.dump(new_data,f,indent=4)
+            else:
+                data.update(new_data)
+                
+                with open(SAVE_FILE,"w")as f:
+                #Saving updated data
+                    json.dump(data,f,indent=4)
+            finally:
                 website_input.delete(0, END)
                 password_input.delete(0, END)
+# #----------------------------- RETRIEVE PASSWORD----------------------- #
+# def fetch_entry():
+#     with open(SAVE_FILE,"r") as f:
+#         lines = f.readlines() 
+#     for line in lines:
+#         if "Amazon" in line:
+                           
 # ---------------------------- UI SETUP ------------------------------- #
 
 window = Tk()
@@ -65,7 +92,7 @@ lock_img = PhotoImage(file=str(LOGO_PATH))
 canvas.create_image(100,100,image=lock_img)
 canvas.grid(row=0,column=1)
 
-
+#---------------Labels-----------------------------------
 #Website label
 website_label = Label(text="Website:",font=FONT,bg="white",borderwidth=0,highlightthickness=0)
 website_label.grid(row=1,column=0)
@@ -78,7 +105,7 @@ email_username_label.grid(row=2,column=0)
 password_label = Label(text="Password:",font=FONT,bg="white",borderwidth=0,highlightthickness=0)
 password_label.grid(row=3,column=0)
 
-#entry blocks
+#---------------Entry blocks----------------------------
 website_input = Entry(width=35)
 website_input.grid(column=1,row=1,columnspan=2,sticky="ew")
 website_input.focus()
@@ -87,14 +114,17 @@ email_username_input = Entry(width=35)
 email_username_input.grid(column=1,row=2,columnspan=2,sticky="ew")
 email_username_input.insert(0,"sunnydogra13@gmail.com")
 
-
 password_input = Entry(width=21)
 password_input.grid(column=1,row=3,sticky="ew")
-
+#------------------------Buttons-------------------------
 generate_password_button = Button(text="Generate Password",width=21,command=generate_password)
 generate_password_button.grid(row=3,column=2) 
 
 add_button = Button(text="Add Button",width=56,command=save)
 add_button.grid(row=4,column=1,columnspan=2) 
 
-window.mainloop() 
+# search_button = Button(text="Search",width=21,command=fetch_entry)
+# add_button.grid(row=4,column=1,columnspan=2) 
+
+
+window.mainloop()   
