@@ -1,0 +1,23 @@
+# Environment variables with secrets
+.env
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Cache files
+stock_price_cache/
+*.cache
