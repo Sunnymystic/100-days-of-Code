@@ -1,0 +1,22 @@
+word_list = [
+    "python",
+    "variable",
+    "function",
+    "loop",
+    "string",
+    "boolean",
+    "integer",
+    "list",
+    "tuple",
+    "dictionary",
+    "hangman",
+    "computer",
+    "keyboard",
+    "programming",
+    "developer",
+    "software",
+    "debugging",
+    "condition",
+    "iteration",
+    "algorithm"
+]
