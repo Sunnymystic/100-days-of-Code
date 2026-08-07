@@ -57,7 +57,7 @@ window.resizable(False, False)
 # ----------------------------------------------------------------------------
 #----------------------------Front Card---------------------------------------
 old_image = PhotoImage(file="flash-card-project-start\\images\\card_front.png")
-new_image = PhotoImage(file="flash-card-project-start\\images\\card_back.png")
+new_image = (file="flash-card-project-start\\images\\card_back.png")
 canvas = Canvas(
     width=800,
     height=526,

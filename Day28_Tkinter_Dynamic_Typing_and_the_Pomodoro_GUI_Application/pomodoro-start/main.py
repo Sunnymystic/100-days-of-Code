@@ -1,7 +1,4 @@
-
 from tkinter import *
-import os
-import sys
 
 # ---------------------------- CONSTANTS ------------------------------- #
 PINK = "#e2979c"

@@ -93,9 +93,9 @@ def main():
                 if have_money_sufficient:
                     make_coffee(choice)
                     print(f"Here is ${refunded_amount} in change.")
-                    print(f"Here is your {choice}. Enjoy!")
+                    print(f"Here is your {choice}. Enjoy!")            
             else:
-                continue
+                break
         elif choice == "report":
             generate_report()
         elif choice == "off":
