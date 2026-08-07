@@ -41,3 +41,6 @@ stock_price_cache/
 
 # Jupyter
 .ipynb_checkpoints/
+git_ignored_candidates.txt
+__MACOSX/
+._*
