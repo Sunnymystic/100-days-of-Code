@@ -8,8 +8,7 @@ import re
 to_address = "sunnydogra13@gmail.com"
 # target_price = 100
 price_of_item = 0
-password = "isssyxsnswhaidbn"
-my_email = "iamdogra007@gmail.com"
+
 URL = "https://www.amazon.in/dp/B0GFSW8PDQ"
 
 
