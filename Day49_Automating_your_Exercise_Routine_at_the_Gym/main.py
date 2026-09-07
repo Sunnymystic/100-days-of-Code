@@ -6,18 +6,39 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC  
 
-def print_summary(class_booked, waitlists_joined, already_booked_waitlisted,day,time):
+def print_summary(class_booked, waitlists_joined, already_booked_waitlisted,day_arr,time,message_arr):
     print("--- BOOKING SUMMARY ---")
     print(f"Classes booked: {class_booked}")
     print(f"Waitlists joined: {waitlists_joined}")
     print(f"Already booked/waitlisted: {already_booked_waitlisted}")
     total = class_booked + waitlists_joined + already_booked_waitlisted
-    print(f"Total {day_mapping[day]} {time} classes proccessed: {total}")
+    # print(day)
+    print(f"Total {day_mapping[day_arr[0]]} & {day_mapping[day_arr[1]]} {time} classes proccessed: {total}")
+    print ("--- DETAILED CLASS LIST ---")
+    for i in range(len(message_arr)):
+        print(message_arr[i])
+
+
+button_tag = None
+parent_div = None
+class_name = ""
+day_date = ""
+# day_date_arr = []
+day = ""
+date = ""
+time = ""
+day_arr = []
+date = ""
+class_booked = 0
+waitlists_joined = 0
+already_booked_waitlisted = 0
+message = ""
+message_arr = []
 
 day_mapping = {"Mon":"Monday",
                "Tue":"Tuesday",
                "Wed":"Wednesday",
-               "Thr":"Thursday",
+               "Thu":"Thursday",
                "Fri":"Friday",
                "Sat":"Saturday",
                "Sun":"Sunday"}
@@ -37,7 +58,7 @@ login_button = WebDriverWait(driver, 20).until(
     EC.presence_of_element_located((By.ID, "login-button"))
 )
 
-print(login_button.get_attribute("id"))
+# print(login_button.get_attribute("id"))
 login_button.click()
 
 email_address_field = WebDriverWait(driver, 10).until(
@@ -67,55 +88,63 @@ class_schedule_heading = WebDriverWait(driver, 5).until(
     EC.presence_of_element_located((By.CSS_SELECTOR, ".Schedule_scheduleTitle__zfZxg"))
 )
 
-print(class_schedule_heading.text)
+# print(class_schedule_heading.text)
 
 classes = WebDriverWait(driver, 10).until(
     EC.presence_of_all_elements_located(
         (By.CSS_SELECTOR, ".Schedule_dayGroup__y79__")
     )
 )
-print("Found:", len(classes))
+# print("Found:", len(classes))
 
 for day_class in classes:
-    if "wed" in (day_class.get_attribute("id") or "").lower():
-        print("Tuesday found.")
-        break
+    # print(f"{day_class.get_attribute("id")}")
+    if "tue" in (day_class.get_attribute("id") or "").lower() or "thu" in (day_class.get_attribute("id") or "").lower():
+        # print(f"{day_class.get_attribute("id")}")
+        classes_for_the_day = day_class.find_elements(
+            By.CSS_SELECTOR,
+            ".ClassCard_cardActions__tVZBm"
+        )
 
-classes = day_class.find_elements(
-    By.CSS_SELECTOR,
-    ".ClassCard_cardActions__tVZBm"
-)
+        # print("Found:", len(classes_for_the_day))
 
-print("Found:", len(classes))
-
-for class_ in classes:
-    button_tag = class_.find_element(By.TAG_NAME,"button")
-    parent_div = class_.find_element(By.XPATH, "./parent::div")
-    class_name = parent_div.find_element(By.CSS_SELECTOR,".ClassCard_cardContent__WGvPp h3").text
-    day_date = day_class.find_element(By.CSS_SELECTOR,".Schedule_dayGroup__y79__ h2").text    
-    day,date = day_date.split(",",1)
-    time = parent_div.find_element(By.CSS_SELECTOR,".ClassCard_cardContent__WGvPp p").text.split(" ",1)[1]
-    class_booked = 0
-    waitlists_joined = 0
-    already_booked_waitlisted = 0
-    print(parent_div.get_attribute("class"))
-    if "1700" in (button_tag.get_attribute("id") or "").lower():
-        print("Book Button found.")
-        if button_tag.text == "Book":
-            class_.click()
-            class_booked += 1
-        elif button_tag.text == "Join Waitlist":
-            class_.click()
-            waitlists_joined += 1
-            print(f"✓ Joined waitlist for: {class_name} on {day_date}")
-        elif button_tag.text == "Booked":
-            already_booked_waitlisted += 1
-            print(f"✓ Already {button_tag.text}: {class_name} on {day_date}")
-        else:
-            print(f"✓ Already {button_tag.text}: {class_name} on {day_date}")
-            already_booked_waitlisted += 1
-        break
-print_summary(class_booked, waitlists_joined, already_booked_waitlisted,day,time)
+        for class_ in classes_for_the_day:
+            button_tag  = class_.find_element(By.TAG_NAME,"button")
+            message = "  • "
+            # print(button_tag.get_attribute("id"))
+            if "1800" in (button_tag.get_attribute("id") or "").lower():
+                # print("My dil goes mmmmm")
+                parent_div = class_.find_element(By.XPATH, "./parent::div")
+                class_name = parent_div.find_element(By.CSS_SELECTOR,".ClassCard_cardContent__WGvPp h3").text
+                day_date = day_class.find_element(By.CSS_SELECTOR,".Schedule_dayGroup__y79__ h2").text   
+                day,date = day_date.split(",",1)
+                if "Today (" in day or "Tomorrow (" in day:
+                    day = day.split("(",1)[1]
+                day_arr.append(day)
+                time = parent_div.find_element(By.CSS_SELECTOR,".ClassCard_cardContent__WGvPp p").text.split(" ",1)[1]
+                # print("Book Button found.")
+                if button_tag.text == "Book Class":
+                    class_.click()
+                    class_booked += 1
+                    print(f"✓ Successfully booked: {class_name} on {day_date}")
+                    message = message + "[New Booking] "
+                elif button_tag.text == "Join Waitlist":
+                    class_.click()
+                    waitlists_joined += 1
+                    print(f"✓ Joined waitlist for: {class_name} on {day_date}")
+                    message = message + "[Waitlist Joined] "
+                elif button_tag.text == "Booked":
+                    already_booked_waitlisted += 1
+                    print(f"✓ Already {button_tag.text}: {class_name} on {day_date}")
+                    message = message + "[Already Booked/Waitlisted] "
+                else:
+                    print(f"✓ Already {button_tag.text}: {class_name} on {day_date}")
+                    already_booked_waitlisted += 1
+                    message = message + "[Already Booked/Waitlisted] "
+                message = message + class_name + " " + "on " +  day_date
+                message_arr.append(message)
+                break
+print_summary(class_booked, waitlists_joined, already_booked_waitlisted,day_arr,time,message_arr)
             
     
     
