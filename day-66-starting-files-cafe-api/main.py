@@ -2,6 +2,7 @@ from flask import Flask, jsonify, render_template, request
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import Integer, String, Boolean
+from random import choice
 
 '''
 Install the required packages first: 
@@ -50,14 +51,100 @@ with app.app_context():
 def home():
     return render_template("index.html")
 
+def to_dict(self):
+    return {column.name:getattr(self,column.name) for column in self.__table__.columns}
 
 # HTTP GET - Read Record
+@app.route("/random")
+def random():
+    cafes  = db.session.execute(db.select(Cafe)).scalars().all()
+    random_cafe = choice(cafes)
+    return jsonify(cafe=to_dict(random_cafe))
+
+@app.route("/all")
+def all_cafes():
+    all_cafes = []
+    cafes  = db.session.execute(db.select(Cafe)).scalars().all()
+    for cafe in cafes:
+        all_cafes.append(to_dict(cafe))
+    return jsonify(cafes = all_cafes)
+        
+@app.route("/search")
+def search():
+    loca = request.args.get("loc")
+    searched_cafe = db.session.execute(
+        db.select(Cafe).filter_by(location=loca)
+        ).scalar()
+    if searched_cafe:
+        return jsonify(cafe = to_dict(searched_cafe))
+    else:
+        return jsonify(error = {
+            "Not Found" : "Sorry, we can't find a cafe at that location."
+        })
+
 
 # HTTP POST - Create Record
+@app.route("/add", methods=["POST"])
+def add():
+    with app.app_context():
+        # db.create_all()
+        new_cafe = Cafe(
+            name=request.form.get('name'),
+            map_url=request.form.get('map_url'),
+            img_url=request.form.get('img_url'),
+            location=request.form.get('location'),
+            seats=request.form.get('seats'),
+            coffee_price=request.form.get('coffee_price'),
+            
+            # Booleans are tricky in forms; it's safest to parse them explicitly
+            has_toilet=request.form.get('has_toilet', default=False, type=lambda v: v.lower() == 'true'),
+            has_wifi=request.form.get('has_wifi', default=False, type=lambda v: v.lower() == 'true'),
+            has_sockets=request.form.get('has_sockets', default=False, type=lambda v: v.lower() == 'true'),
+            can_take_calls=request.form.get('can_take_calls', default=False, type=lambda v: v.lower() == 'true')
+        )
+    db.session.add(new_cafe)
+    db.session.commit()
+    return jsonify(response = {
+        "success": "Successfully added the new cafe."
+    })
+
 
 # HTTP PUT/PATCH - Update Record
+@app.route("/update-price/<cafe_id>", methods=["PATCH"])
+def update_price(cafe_id):
+    try:
+        cafe_to_update = db.session.get(Cafe, cafe_id)
+        if "new_price" in request.args:
+            cafe_to_update.coffee_price = request.args.get("new_price")
+            db.session.commit()
+            return {"success": "Cafe updated successfully."}, 200
+        else:
+            return {"error": "New coffee price not provided"}, 200
+        
+    except AttributeError:
+        # Code that runs ONLY if an error happens in the try block
+        db.session.rollback()
+        return {"error": {"Not Found", "Sorry a cafe with that id was not found in the database."}}, 200
 
 # HTTP DELETE - Delete Record
+@app.route("/report-closed/<cafe_id>", methods=["DELETE"])
+def report_closed(cafe_id):
+    try:
+        cafe_to_delete = db.session.get(Cafe, cafe_id)
+        if "api-key" in request.args and request.args.get("api-key") == "TopSecretAPIKey":            
+            db.session.delete(cafe_to_delete)
+            db.session.commit()
+            return {"success": "Cafe deleted successfully."}, 200
+        else:
+            return {"error": "New coffee price not provided"}, 403
+        
+    except AttributeError:
+        # Code that runs ONLY if an error happens in the try block
+        db.session.rollback()
+        return {"error": {"Not Found", "Sorry a cafe with that id was not found in the database."}}, 404
+
+
+
 
 
 if __name__ == '__main__':
