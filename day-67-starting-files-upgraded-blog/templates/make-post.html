@@ -10,7 +10,12 @@
       <div class="col-md-10 col-lg-8 col-xl-7">
         <div class="page-heading">
           <!-- TODO: Show a different h1 if editing existing post -->
-          <h1>New Post</h1>
+          {% if form.validate_on_submit() %}
+              <h1>New Post</h1>
+          {% else %}
+              <h1>Edit Post</h1>
+          {% endif %}
+
           <span class="subheading"
             >You're going to make a great blog post!</span
           >
@@ -24,7 +29,40 @@
   <div class="container">
     <div class="row">
       <div class="col-lg-8 col-md-10 mx-auto">
-        <!-- TODO:-Add CKEditor and render the form here -->
+        <form method="POST">
+          {{ form.csrf_token }}
+
+          <div class="mb-3">
+            {{ form.blog_post_title.label(class="form-label") }}
+            {{ form.blog_post_title(class="form-control", placeholder="Enter blog post title") }}
+          </div>
+
+          <div class="mb-3">
+            {{ form.subtitle.label(class="form-label") }}
+            {{ form.subtitle(class="form-control", placeholder="Enter subtitle") }}
+          </div>
+
+          <div class="mb-3">
+            {{ form.your_name.label(class="form-label") }}
+            {{ form.your_name(class="form-control", placeholder="Enter your name") }}
+          </div>
+
+          <div class="mb-3">
+            {{ form.blog_image_url.label(class="form-label") }}
+            {{ form.blog_image_url(class="form-control", placeholder="Enter blog image URL") }}
+          </div>
+
+          <div class="mb-3">
+            {{ form.blog_content.label(class="form-label") }}
+            {{ form.blog_content() }}
+          </div>
+
+          <div class="mb-3">
+            {{ form.submit(class="btn btn-primary") }}
+          </div>
+        </form>
+        {{ ckeditor.load() }}
+        {{ ckeditor.config(name='blog_content', height=400) }}
       </div>
     </div>
   </div>

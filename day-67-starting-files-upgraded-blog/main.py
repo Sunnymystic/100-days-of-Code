@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, render_template, redirect, url_for, request
 from flask_bootstrap import Bootstrap5
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
@@ -24,6 +24,7 @@ This will install the packages from the requirements.txt for this project.
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'
+ckeditor = CKEditor(app)
 Bootstrap5(app)
 
 # CREATE DATABASE
@@ -44,6 +45,13 @@ class BlogPost(db.Model):
     author: Mapped[str] = mapped_column(String(250), nullable=False)
     img_url: Mapped[str] = mapped_column(String(250), nullable=False)
 
+class PostForm(FlaskForm):
+    blog_post_title = StringField('Blog Post Title', validators=[DataRequired()])
+    subtitle = StringField('Subtitle', validators=[DataRequired()])
+    your_name = StringField("Your Name", validators=[DataRequired()])
+    blog_image_url = StringField("Blog Image URL", validators=[DataRequired()])
+    blog_content = CKEditorField("Blog Content",validators=[DataRequired()])
+    submit = SubmitField('Submit Post')
 
 with app.app_context():
     db.create_all()
@@ -51,23 +59,68 @@ with app.app_context():
 
 @app.route('/')
 def get_all_posts():
-    # TODO: Query the database for all the posts. Convert the data to a python list.
     posts = []
+    post_recs  = db.session.execute(db.select(BlogPost)).scalars().all()
+    for post in post_recs:
+        posts.append(post)
     return render_template("index.html", all_posts=posts)
 
 # TODO: Add a route so that you can click on individual posts.
-@app.route('/')
+@app.route('/<post_id>')
 def show_post(post_id):
-    # TODO: Retrieve a BlogPost from the database based on the post_id
-    requested_post = "Grab the post from your database"
+    requested_post = db.session.get(BlogPost, post_id)
     return render_template("post.html", post=requested_post)
 
-
 # TODO: add_new_post() to create a new blog post
+@app.route("/new-post", methods=["GET", "POST"])
+def new_post():
+    form = PostForm()
+    today = date.today()
+    if form.validate_on_submit():
+        new_post = BlogPost(
+            title=request.form.get('blog_post_title'),
+            subtitle=request.form.get('subtitle'),
+            author=request.form.get('your_name'),
+            date = today.strftime("%B %d, %Y"),
+            img_url=request.form.get('blog_image_url'),
+            body=request.form.get('blog_content')
+        )  
+        db.session.add(new_post)
+        db.session.commit()
+        return redirect(url_for("get_all_posts"))
+    return render_template("make-post.html",form=form)
 
 # TODO: edit_post() to change an existing blog post
+@app.route("/edit-post/<post_id>", methods=["GET", "POST"])
+def edit_post(post_id):
+    form = PostForm()
+    post = db.get_or_404(BlogPost, post_id)
+    form = PostForm(
+        blog_post_title=post.title,
+        subtitle=post.subtitle,
+        your_name=post.author,
+        blog_image_url=post.img_url,
+        blog_content=post.body
+    )
+    if form.validate_on_submit():
+        post.title = form.blog_post_title.data
+        post.subtitle = form.subtitle.data
+        post.author = form.your_name.data
+        post.img_url = form.blog_image_url.data
+        post.body = form.blog_content.data
 
-# TODO: delete_post() to remove a blog post from the database
+        db.session.commit()
+        return redirect(url_for("get_all_posts"))
+    return render_template("make-post.html", form=form, is_edit = True)
+
+
+@app.route("/delete/<post_id>")
+def delete_post(post_id):
+    post_to_delete = db.session.get(BlogPost, post_id)
+    db.session.delete(post_to_delete)
+    db.session.commit()
+    return redirect(url_for("get_all_posts"))
+
 
 # Below is the code from previous lessons. No changes needed.
 @app.route("/about")
